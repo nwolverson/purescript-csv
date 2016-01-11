@@ -2,21 +2,16 @@ module Test.Main where
 
 import Prelude
 
-import Control.Monad.Eff.Console
-import Test.QuickCheck (quickCheck,quickCheck')
+import Control.Monad.Aff.AVar
+import Control.Monad.Eff
 import Test.Unit
+import Test.Unit.Assert
+import Test.Unit.Console (TESTOUTPUT ())
 import Main
-import Data.Char
-import Data.String
 import Data.Either
 import Data.Maybe
 
 import Text.Parsing.Parser
-import Text.Parsing.Parser.Combinators
-import Text.Parsing.Parser.Expr
-import Text.Parsing.Parser.String
-import Text.Parsing.Parser.Token
-import Text.Parsing.Parser.Pos
 
 import Data.List(toList,List(),head)
 import qualified Data.Map as M
@@ -48,6 +43,7 @@ testFileResult = toList $ toList <$> [
   ["x", "y", "z"]
 ]
 
+main :: forall a. Eff (testOutput :: TESTOUTPUT, avar :: AVAR, timer :: TIMER | a) Unit
 main = runTest do
   test "chars" do
     assert "parses chars" $ parses chars "abc" "abc"

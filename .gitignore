@@ -1,4 +1,7 @@
 .psci
 .psci_modules
-bower_components
-output
+/bower_components
+/output
+/env
+/node_modules
+/.pulp-cache
