@@ -7,7 +7,7 @@ import Control.Monad.Eff (Eff)
 import Test.Unit (TIMER, test, runTest)
 import Test.Unit.Assert (assert)
 import Test.Unit.Console (TESTOUTPUT ())
-import Main (P, fileHeaded, file, row, field, chars)
+import Text.Parsing.CSV (P, fileHeaded, file, row, field, chars)
 import Data.Either (Either(Left, Right))
 import Data.Maybe (fromMaybe)
 

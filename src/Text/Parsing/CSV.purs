@@ -1,4 +1,4 @@
-module Main where
+module Text.Parsing.CSV where
 
 import Prelude ((<$>), return, ($), bind, (/=), (&&))
 import Text.Parsing.Parser (Parser)
