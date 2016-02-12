@@ -1,23 +1,19 @@
 module Main where
 
-import Prelude
-import Text.Parsing.Parser
-import Text.Parsing.Parser.Combinators
-import Text.Parsing.Parser.Expr
-import Text.Parsing.Parser.String
-import Text.Parsing.Parser.Token
-import Text.Parsing.Parser.Pos
+import Prelude ((<$>), return, ($), bind, (/=), (&&))
+import Text.Parsing.Parser (Parser)
+import Text.Parsing.Parser.Combinators (sepEndBy, sepBy1, between)
+import Text.Parsing.Parser.String (eof, string, satisfy)
 
-import Control.Alt
+import Control.Alt ((<|>))
 import Control.Apply ((<*))
 import Data.Functor (($>))
-import Control.Alternative
 
 import Data.Array(some)
 import Data.String(fromCharArray)
-import Data.List(List(..),fromList,zip)
+import Data.List(List(..),zip)
 
-import qualified Data.Map as M
+import Data.Map as M
 
 type P a = Parser String a
 
@@ -52,4 +48,4 @@ fileHeaded = do
     Nil -> Nil
     Cons header rows -> mkRow header <$> rows
   where
-    mkRow header row = M.fromList $ zip header row
+    mkRow header row' = M.fromList $ zip header row'

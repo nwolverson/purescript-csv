@@ -1,25 +1,20 @@
 module Test.Main where
 
-import Prelude
+import Prelude (class Eq, Unit, (==), (&&), return, ($), bind, (++), (<$>))
 
-import Control.Monad.Eff.Console
-import Test.QuickCheck (quickCheck,quickCheck')
-import Test.Unit
-import Main
-import Data.Char
-import Data.String
-import Data.Either
-import Data.Maybe
+import Control.Monad.Aff.AVar (AVAR)
+import Control.Monad.Eff (Eff)
+import Test.Unit (TIMER, test, runTest)
+import Test.Unit.Assert (assert)
+import Test.Unit.Console (TESTOUTPUT ())
+import Main (P, fileHeaded, file, row, field, chars)
+import Data.Either (Either(Left, Right))
+import Data.Maybe (fromMaybe)
 
-import Text.Parsing.Parser
-import Text.Parsing.Parser.Combinators
-import Text.Parsing.Parser.Expr
-import Text.Parsing.Parser.String
-import Text.Parsing.Parser.Token
-import Text.Parsing.Parser.Pos
+import Text.Parsing.Parser (runParser)
 
 import Data.List(toList,List(),head)
-import qualified Data.Map as M
+import Data.Map as M
 
 parseTrue :: forall a. P a -> (a -> Boolean) -> String -> Boolean
 parseTrue parser expectation input =
@@ -48,6 +43,7 @@ testFileResult = toList $ toList <$> [
   ["x", "y", "z"]
 ]
 
+main :: forall a. Eff (testOutput :: TESTOUTPUT, avar :: AVAR, timer :: TIMER | a) Unit
 main = runTest do
   test "chars" do
     assert "parses chars" $ parses chars "abc" "abc"
