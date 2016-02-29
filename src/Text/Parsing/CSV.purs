@@ -7,16 +7,14 @@ import Text.Parsing.Parser.String (eof, string, satisfy)
 
 import Control.Alt ((<|>))
 import Control.Apply ((<*))
-import Data.Functor (($>))
 
+import Data.Functor (($>))
 import Data.Array (some)
 import Data.String (fromCharArray, toCharArray)
 import Data.Char (toString)
 import Data.List (List(..),zip)
 import Data.Foldable (all)
-
 import Data.Map as M
-
 import Data.Maybe
 
 type P a = Parser String a
@@ -51,7 +49,7 @@ makeQchars c = fromCharArray <$> some (qchar <|> escapedQuote)
   qchar = satisfy (\c' -> c' /= c)
 
 makeField :: forall a. (P String -> P String) -> P String -> P String -> P String
-makeField q qc c = q qc <|> c
+makeField qoutes qoutedChars purechars = qoutes qoutedChars <|> purechars <|> string ""
 
 makeRow :: String -> P String -> P (List String)
 makeRow s f = f `sepBy1` string s
