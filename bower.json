@@ -4,6 +4,10 @@
   "moduleType": [
     "node"
   ],
+  "repository": {
+      "type": "git",
+      "url": "git://github.com/robkuz/purescript-csv.git"
+  },
   "ignore": [
     "**/.*",
     "node_modules",
@@ -12,7 +16,7 @@
   ],
   "dependencies": {
     "purescript-console": "^0.1.0",
-    "purescript-parsing": "~0.7.1",
+    "purescript-parsing": "~0.8.0",
     "purescript-arrays": "~0.4.1",
     "purescript-quickcheck": "~0.12.2",
     "purescript-test-unit": "~4.1.0",

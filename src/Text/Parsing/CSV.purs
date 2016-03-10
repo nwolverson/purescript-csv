@@ -1,6 +1,6 @@
 module Text.Parsing.CSV where
 
-import Prelude ((<$>), return, ($), bind, (/=), (&&), map, id, (<*>), (++))
+import Prelude ((<$>), return, ($), bind, (/=), map, id, (<*>), (++))
 import Text.Parsing.Parser (Parser)
 import Text.Parsing.Parser.Combinators (sepEndBy, sepBy1, between)
 import Text.Parsing.Parser.String (eof, string, satisfy)
@@ -15,7 +15,6 @@ import Data.Char (toString)
 import Data.List (List(..),zip)
 import Data.Foldable (all)
 import Data.Map as M
-import Data.Maybe
 
 type P a = Parser String a
 
@@ -48,7 +47,7 @@ makeQchars c = fromCharArray <$> some (qchar <|> escapedQuote)
   escapedQuote = (string $ (toString c ++ toString c)) $> c
   qchar = satisfy (\c' -> c' /= c)
 
-makeField :: forall a. (P String -> P String) -> P String -> P String -> P String
+makeField :: (P String -> P String) -> P String -> P String -> P String
 makeField qoutes qoutedChars purechars = qoutes qoutedChars <|> purechars <|> string ""
 
 makeRow :: String -> P String -> P (List String)
@@ -66,7 +65,7 @@ makeFileHeaded file = do
   where
     mkRow header row' = M.fromList $ zip header row'
 
-makeParsers :: forall a. Char -> String -> String -> Parsers String
+makeParsers :: Char -> String -> String -> Parsers String
 makeParsers quote seperator eol = do
   let quoted' = makeQuoted $ toString quote
   let chars' = makeChars $ (toString quote) ++ seperator ++ eol
@@ -85,4 +84,5 @@ makeParsers quote seperator eol = do
     fileHeaded: fileHeaded'
   }  
 
+defaultParsers :: Parsers String
 defaultParsers = makeParsers '"' "," "\n"

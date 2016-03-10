@@ -4,16 +4,13 @@ import Prelude (class Eq, Unit, (==), (&&), return, ($), bind, (++), (<$>))
 
 import Control.Monad.Aff.AVar (AVAR)
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (log)
-import Control.Monad.Eff.Class
-import Control.Monad.Aff 
 
 
 import Test.Unit (TIMER, test, runTest)
 import Test.Unit.Assert (assert)
 import Test.Unit.Console (TESTOUTPUT ())
 
-import Text.Parsing.CSV (P, defaultParsers, makeParsers)
+import Text.Parsing.CSV (P, defaultParsers, makeParsers, Parsers)
 import Text.Parsing.Parser (runParser)
 
 import Data.Either (Either(Left, Right))
@@ -21,6 +18,7 @@ import Data.Maybe (fromMaybe)
 import Data.List(toList,List(),head)
 import Data.Map as M
 
+excelParsers :: Parsers String
 excelParsers = makeParsers '\'' ";" "\r\n"
 
 parseTrue :: forall a. P a -> (a -> Boolean) -> String -> Boolean
