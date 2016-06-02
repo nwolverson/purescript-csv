@@ -1,6 +1,5 @@
 {
   "name": "purescript-csv",
-  "version": "1.0.2",
   "moduleType": [
     "node"
   ],
