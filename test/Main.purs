@@ -1,25 +1,27 @@
 module Test.Main where
 
-import Prelude
+import Prelude (class Eq, Unit, (==), (&&), return, ($), bind, (++), (<$>))
 
-import Control.Monad.Eff.Console
-import Test.QuickCheck (quickCheck,quickCheck')
-import Test.Unit
-import Main
-import Data.Char
-import Data.String
-import Data.Either
-import Data.Maybe
+import Control.Monad.Aff.AVar (AVAR)
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Console (log)
+import Control.Monad.Eff.Class
+import Control.Monad.Aff 
 
-import Text.Parsing.Parser
-import Text.Parsing.Parser.Combinators
-import Text.Parsing.Parser.Expr
-import Text.Parsing.Parser.String
-import Text.Parsing.Parser.Token
-import Text.Parsing.Parser.Pos
 
+import Test.Unit (TIMER, test, runTest)
+import Test.Unit.Assert (assert)
+import Test.Unit.Console (TESTOUTPUT ())
+
+import Text.Parsing.CSV (P, defaultParsers, makeParsers)
+import Text.Parsing.Parser (runParser)
+
+import Data.Either (Either(Left, Right))
+import Data.Maybe (fromMaybe)
 import Data.List(toList,List(),head)
-import qualified Data.Map as M
+import Data.Map as M
+
+excelParsers = makeParsers '\'' ";" "\r\n"
 
 parseTrue :: forall a. P a -> (a -> Boolean) -> String -> Boolean
 parseTrue parser expectation input =
@@ -30,46 +32,56 @@ parseTrue parser expectation input =
 parses :: forall a. (Eq a) => P a -> a -> String -> Boolean
 parses parser expected input = parseTrue parser (\r -> expected == r) input
 
-noparse :: forall a. (Eq a) => P a -> String -> Boolean
-noparse parser input =
-  case runParser input parser of
-    Right _ -> false
-    Left _ -> true
-
 testFile :: String
 testFile = """a,b,c
 1,2,3
 "x","y",z"""
 
-testFileResult :: List (List String)
-testFileResult = toList $ toList <$> [
+testData :: Array (Array String)
+testData = [
   ["a", "b", "c"],
   ["1", "2", "3"],
   ["x", "y", "z"]
 ]
 
+testFileResult :: List (List String)
+testFileResult = toList $ toList <$> testData
+
+testFileEmptyEndLineResult :: List (List String)
+testFileEmptyEndLineResult = toList $ toList <$> testData ++ [[""]]
+
+main :: forall a. Eff (testOutput :: TESTOUTPUT, avar :: AVAR, timer :: TIMER | a) Unit
 main = runTest do
   test "chars" do
-    assert "parses chars" $ parses chars "abc" "abc"
-    assert "doesn't parse with quote" $ parses chars "ab" "ab\"c"
+    assert "parses chars" $ parses defaultParsers.chars "abc" "abc"
+    assert "doesn't parse with quote" $ parses defaultParsers.chars "ab" "ab\"c"
   test "unquoted field" do
-    assert "" $ parses field "abc123" "abc123"
+    assert "" $ parses defaultParsers.field "abc123" "abc123"
   test "quoted field" do
-    assert "" $ parses field "abc123" "\"abc123\""
+    assert "quoted with \": " $ parses defaultParsers.field "abc123" "\"abc123\""
+    assert "cant parse ' quotation': " $ parses excelParsers.field "abc123" "'abc123'"
+    assert "can have seperator in quoted field" $ parses excelParsers.field "abc;123" "'abc;123'"
   test "quoted field with quotes" do
-    assert "doesn't allow quote escape" $ parses field "x\"y" "\"x\"\"y\""
+    assert "doesn't allow quote escape" $ parses defaultParsers.field "x\"y" "\"x\"\"y\""
   test "newlines" do
-    assert "can't have newline in unquoted field" $ parses field "a" "a\nb"
-    assert "can have newline in quoted field" $ parses field "a\nb" "\"a\nb\""
+    assert "can't have newline in unquoted field" $ parses defaultParsers.field "a" "a\nb"
+    assert "can have newline in quoted field" $ parses defaultParsers.field "a\nb" "\"a\nb\""
   test "row" do
-    assert "failed basic row" $ parses row (toList $ ["a", "b", "c"]) "a,b,c"
-    assert "failed quoted row" $ parses row (toList $ ["a", "b", "c"]) "\"a\",\"b\",\"c\""
+    assert "failed basic row" $ parses defaultParsers.row (toList $ ["a", "b", "c"]) "a,b,c"
+    assert "failed quoted row" $ parses defaultParsers.row (toList $ ["a", "b", "c"]) "\"a\",\"b\",\"c\""
+    assert "failed basic row" $ parses excelParsers.row (toList $ ["a", "b", "c"]) "a;b;c"
+    assert "failed quoted row" $ parses excelParsers.row (toList $ ["a", "b", "c"]) "'a';'b';'c'"
+  test "row with empty fields" do
+    assert "failed empty fields" $ parses defaultParsers.row (toList $ ["a", "", "c"]) "a,,c"
+    assert "failed empty fields at begining" $ parses defaultParsers.row (toList $ ["", "a", "b", "c"]) ",a,b,c"
+    assert "failed empty fields at end" $ parses defaultParsers.row (toList $ ["a", "b", "c", ""]) "a,b,c,"
   test "file" do
-    assert "single line file" $ parses file testFileResult "a,b,c\n1,2,3\nx,y,z"
-    assert "didn't parse file" $ parses file testFileResult testFile
-    assert "didn't parse file with trailing newline" $ parses file testFileResult $ testFile ++ "\n"
+    assert "single line file" $ parses defaultParsers.file testFileResult "a,b,c\n1,2,3\nx,y,z"
+    assert "single line file with windows eols" $ parses excelParsers.file testFileResult "a;b;c\r\n1;2;3\r\nx;y;z"
+    assert "didn't parse file" $ parses defaultParsers.file testFileResult testFile
+    assert "didn't parse file with trailing newline" $ parses defaultParsers.file testFileEmptyEndLineResult $ testFile ++ "\n"
   test "fileHeaded" do
-    assert "headed lookup" $ parseTrue fileHeaded (\res -> fromMaybe false $ do
+    assert "headed lookup" $ parseTrue defaultParsers.fileHeaded (\res -> fromMaybe false $ do
       row <- head res
       a <- M.lookup "a" (row :: M.Map String String)
       b <- M.lookup "b" row

@@ -1,6 +1,6 @@
 {
   "name": "purescript-csv",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "moduleType": [
     "node"
   ],
@@ -12,10 +12,10 @@
   ],
   "dependencies": {
     "purescript-console": "^0.1.0",
-    "purescript-parsing": "~0.4.0",
+    "purescript-parsing": "~0.7.1",
     "purescript-arrays": "~0.4.1",
-    "purescript-quickcheck": "~0.7.0",
-    "purescript-test-unit": "~2.0.0",
-    "purescript-maps": "~0.4.2"
+    "purescript-quickcheck": "~0.12.2",
+    "purescript-test-unit": "~4.1.0",
+    "purescript-maps": "~0.5.4"
   }
 }
