@@ -1,15 +1,12 @@
 module Test.Main where
 
-import Prelude (class Eq, Unit, (==), (&&), return, ($), bind, (++), (<$>))
+import Prelude (class Eq, Unit, (==), (&&), pure, ($), bind, (<>), (<$>))
 
-import Control.Monad.Aff.AVar (AVAR)
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (log)
-import Control.Monad.Eff.Class
-import Control.Monad.Aff 
+import Control.Monad.Eff.Console (CONSOLE)
 
-
-import Test.Unit (TIMER, test, runTest)
+import Test.Unit (test)
+import Test.Unit.Main (runTest)
 import Test.Unit.Assert (assert)
 import Test.Unit.Console (TESTOUTPUT ())
 
@@ -18,7 +15,7 @@ import Text.Parsing.Parser (runParser)
 
 import Data.Either (Either(Left, Right))
 import Data.Maybe (fromMaybe)
-import Data.List(toList,List(),head)
+import Data.List(fromFoldable,List(),head)
 import Data.Map as M
 
 excelParsers = makeParsers '\'' ";" "\r\n"
@@ -45,12 +42,12 @@ testData = [
 ]
 
 testFileResult :: List (List String)
-testFileResult = toList $ toList <$> testData
+testFileResult = fromFoldable $ fromFoldable <$> testData
 
 testFileEmptyEndLineResult :: List (List String)
-testFileEmptyEndLineResult = toList $ toList <$> testData ++ [[""]]
+testFileEmptyEndLineResult = fromFoldable $ fromFoldable <$> testData <> [[""]]
 
-main :: forall a. Eff (testOutput :: TESTOUTPUT, avar :: AVAR, timer :: TIMER | a) Unit
+main :: forall a. Eff (testOutput :: TESTOUTPUT, console :: CONSOLE | a) Unit
 main = runTest do
   test "chars" do
     assert "parses chars" $ parses defaultParsers.chars "abc" "abc"
@@ -67,22 +64,22 @@ main = runTest do
     assert "can't have newline in unquoted field" $ parses defaultParsers.field "a" "a\nb"
     assert "can have newline in quoted field" $ parses defaultParsers.field "a\nb" "\"a\nb\""
   test "row" do
-    assert "failed basic row" $ parses defaultParsers.row (toList $ ["a", "b", "c"]) "a,b,c"
-    assert "failed quoted row" $ parses defaultParsers.row (toList $ ["a", "b", "c"]) "\"a\",\"b\",\"c\""
-    assert "failed basic row" $ parses excelParsers.row (toList $ ["a", "b", "c"]) "a;b;c"
-    assert "failed quoted row" $ parses excelParsers.row (toList $ ["a", "b", "c"]) "'a';'b';'c'"
+    assert "failed basic row" $ parses defaultParsers.row (fromFoldable $ ["a", "b", "c"]) "a,b,c"
+    assert "failed quoted row" $ parses defaultParsers.row (fromFoldable $ ["a", "b", "c"]) "\"a\",\"b\",\"c\""
+    assert "failed basic row" $ parses excelParsers.row (fromFoldable $ ["a", "b", "c"]) "a;b;c"
+    assert "failed quoted row" $ parses excelParsers.row (fromFoldable $ ["a", "b", "c"]) "'a';'b';'c'"
   test "row with empty fields" do
-    assert "failed empty fields" $ parses defaultParsers.row (toList $ ["a", "", "c"]) "a,,c"
-    assert "failed empty fields at begining" $ parses defaultParsers.row (toList $ ["", "a", "b", "c"]) ",a,b,c"
-    assert "failed empty fields at end" $ parses defaultParsers.row (toList $ ["a", "b", "c", ""]) "a,b,c,"
+    assert "failed empty fields" $ parses defaultParsers.row (fromFoldable $ ["a", "", "c"]) "a,,c"
+    assert "failed empty fields at begining" $ parses defaultParsers.row (fromFoldable $ ["", "a", "b", "c"]) ",a,b,c"
+    assert "failed empty fields at end" $ parses defaultParsers.row (fromFoldable $ ["a", "b", "c", ""]) "a,b,c,"
   test "file" do
     assert "single line file" $ parses defaultParsers.file testFileResult "a,b,c\n1,2,3\nx,y,z"
     assert "single line file with windows eols" $ parses excelParsers.file testFileResult "a;b;c\r\n1;2;3\r\nx;y;z"
     assert "didn't parse file" $ parses defaultParsers.file testFileResult testFile
-    assert "didn't parse file with trailing newline" $ parses defaultParsers.file testFileEmptyEndLineResult $ testFile ++ "\n"
+    assert "didn't parse file with trailing newline" $ parses defaultParsers.file testFileEmptyEndLineResult $ testFile <> "\n"
   test "fileHeaded" do
     assert "headed lookup" $ parseTrue defaultParsers.fileHeaded (\res -> fromMaybe false $ do
       row <- head res
       a <- M.lookup "a" (row :: M.Map String String)
       b <- M.lookup "b" row
-      return $ (a :: String) == "1" && b == "2") testFile
+      pure $ (a :: String) == "1" && b == "2") testFile
