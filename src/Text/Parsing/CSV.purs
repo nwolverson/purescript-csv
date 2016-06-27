@@ -1,6 +1,6 @@
 module Text.Parsing.CSV where
 
-import Prelude ((<$>), return, ($), bind, (/=), (&&), map, id, (<*>), (++))
+import Prelude ((<$>), pure, ($), bind, (/=), (&&), map, id, (<*>), (<>))
 import Text.Parsing.Parser (Parser)
 import Text.Parsing.Parser.Combinators (sepEndBy, sepBy1, between)
 import Text.Parsing.Parser.String (eof, string, satisfy)
@@ -10,12 +10,10 @@ import Control.Apply ((<*))
 
 import Data.Functor (($>))
 import Data.Array (some)
-import Data.String (fromCharArray, toCharArray)
-import Data.Char (toString)
+import Data.String (fromCharArray, toCharArray, singleton)
 import Data.List (List(..),zip)
 import Data.Foldable (all)
 import Data.Map as M
-import Data.Maybe
 
 type P a = Parser String a
 
@@ -28,7 +26,7 @@ type Parsers a =
     row :: P (List String),
     file :: P (List (List String)),
     fileHeaded :: P (List (M.Map String String))
-  }  
+  }
 
 makeQuoted :: forall a. String -> (P a -> P a)
 makeQuoted q = between (string q) (string q)
@@ -45,10 +43,10 @@ makeQchars :: Char -> P String
 makeQchars c = fromCharArray <$> some (qchar <|> escapedQuote)
   where
   escapedQuote :: P Char
-  escapedQuote = (string $ (toString c ++ toString c)) $> c
+  escapedQuote = (string $ (singleton c <> singleton c)) $> c
   qchar = satisfy (\c' -> c' /= c)
 
-makeField :: forall a. (P String -> P String) -> P String -> P String -> P String
+makeField :: (P String -> P String) -> P String -> P String -> P String
 makeField qoutes qoutedChars purechars = qoutes qoutedChars <|> purechars <|> string ""
 
 makeRow :: String -> P String -> P (List String)
@@ -60,16 +58,16 @@ makeFile s r = r `sepEndBy` string s <* eof
 makeFileHeaded :: P (List (List String)) -> P (List (M.Map String String))
 makeFileHeaded file = do
   f <- file
-  return $ case f of
+  pure $ case f of
     Nil -> Nil
     Cons header rows -> mkRow header <$> rows
   where
     mkRow header row' = M.fromList $ zip header row'
 
-makeParsers :: forall a. Char -> String -> String -> Parsers String
+makeParsers :: Char -> String -> String -> Parsers String
 makeParsers quote seperator eol = do
-  let quoted' = makeQuoted $ toString quote
-  let chars' = makeChars $ (toString quote) ++ seperator ++ eol
+  let quoted' = makeQuoted $ singleton quote
+  let chars' = makeChars $ (singleton quote) <> seperator <> eol
   let qchars' = makeQchars quote
   let field' = makeField quoted' qchars' chars'
   let row' = makeRow seperator field'
@@ -83,6 +81,6 @@ makeParsers quote seperator eol = do
     row: row',
     file: file',
     fileHeaded: fileHeaded'
-  }  
+  }
 
 defaultParsers = makeParsers '"' "," "\n"
