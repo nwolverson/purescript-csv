@@ -12,9 +12,9 @@
   "dependencies": {
     "purescript-console": "^1.0.0",
     "purescript-parsing": "^1.0.0",
-    "purescript-arrays": "^1.0.0",
+    "purescript-arrays": "^1.1.0",
     "purescript-quickcheck": "^1.0.0",
-    "purescript-test-unit": "^7.0.0",
-    "purescript-maps": "^1.1.0"
+    "purescript-test-unit": "^9.1.0",
+    "purescript-maps": "^1.2.0"
   }
 }
