@@ -9,6 +9,11 @@
     "bower_components",
     "output"
   ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nwolverson/purescript-csv.git"
+  },
   "dependencies": {
     "purescript-console": "^1.0.0",
     "purescript-parsing": "^1.0.0",
