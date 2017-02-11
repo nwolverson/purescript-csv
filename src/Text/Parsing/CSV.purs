@@ -62,7 +62,7 @@ makeFileHeaded file = do
     Nil -> Nil
     Cons header rows -> mkRow header <$> rows
   where
-    mkRow header row' = M.fromList $ zip header row'
+    mkRow header row' = M.fromFoldable $ zip header row'
 
 makeParsers :: Char -> String -> String -> Parsers String
 makeParsers quote seperator eol = do

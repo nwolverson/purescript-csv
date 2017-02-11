@@ -47,7 +47,7 @@ testFileResult = fromFoldable $ fromFoldable <$> testData
 testFileEmptyEndLineResult :: List (List String)
 testFileEmptyEndLineResult = fromFoldable $ fromFoldable <$> testData <> [[""]]
 
-main :: forall a. Eff (testOutput :: TESTOUTPUT, console :: CONSOLE | a) Unit
+main :: ∀ e. Eff ( console ∷ CONSOLE , err ∷ EXCEPTION , process ∷ PROCESS , random ∷ RANDOM | e ) Unit
 main = runTest do
   test "chars" do
     assert "parses chars" $ parses defaultParsers.chars "abc" "abc"
