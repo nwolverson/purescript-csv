@@ -11,4 +11,4 @@ install:
   - chmod a+x $HOME/purescript
   - npm install -g bower pulp
 script:
-  - npm install && bower install && pulp build
+  - npm install && bower install && pulp test
