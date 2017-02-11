@@ -15,11 +15,11 @@
     "url": "https://github.com/nwolverson/purescript-csv.git"
   },
   "dependencies": {
-    "purescript-console": "^1.0.0",
-    "purescript-parsing": "^1.0.0",
-    "purescript-arrays": "^1.1.0",
-    "purescript-quickcheck": "^1.0.0",
-    "purescript-test-unit": "^9.1.0",
-    "purescript-maps": "^1.2.0"
+    "purescript-console": "^2.0.0",
+    "purescript-parsing": "^3.2.0",
+    "purescript-arrays": "^3.2.0",
+    "purescript-quickcheck": "^3.1.1",
+    "purescript-test-unit": "^10.1.0",
+    "purescript-maps": "^2.1.1"
   }
 }
