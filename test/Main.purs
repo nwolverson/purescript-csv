@@ -1,22 +1,19 @@
 module Test.Main where
 
-import Prelude (class Eq, Unit, (==), (&&), pure, ($), bind, (<>), (<$>))
-
+import Prelude
+import Data.Map as M
+import Control.Monad.Aff.AVar (AVAR)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE)
-
+import Data.Either (Either(Left, Right))
+import Data.List (fromFoldable, List, head)
+import Data.Maybe (fromMaybe)
 import Test.Unit (test)
-import Test.Unit.Main (runTest)
 import Test.Unit.Assert (assert)
-import Test.Unit.Console (TESTOUTPUT ())
-
+import Test.Unit.Console (TESTOUTPUT)
+import Test.Unit.Main (runTest)
 import Text.Parsing.CSV (P, defaultParsers, makeParsers)
 import Text.Parsing.Parser (runParser)
-
-import Data.Either (Either(Left, Right))
-import Data.Maybe (fromMaybe)
-import Data.List(fromFoldable,List(),head)
-import Data.Map as M
 
 excelParsers = makeParsers '\'' ";" "\r\n"
 
@@ -47,7 +44,7 @@ testFileResult = fromFoldable $ fromFoldable <$> testData
 testFileEmptyEndLineResult :: List (List String)
 testFileEmptyEndLineResult = fromFoldable $ fromFoldable <$> testData <> [[""]]
 
-main :: ∀ e. Eff ( console ∷ CONSOLE , err ∷ EXCEPTION , process ∷ PROCESS , random ∷ RANDOM | e ) Unit
+main :: ∀ e. Eff (avar :: AVAR, testOutput :: TESTOUTPUT, console ∷ CONSOLE | e) Unit
 main = runTest do
   test "chars" do
     assert "parses chars" $ parses defaultParsers.chars "abc" "abc"

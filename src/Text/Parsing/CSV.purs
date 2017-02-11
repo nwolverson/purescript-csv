@@ -1,19 +1,15 @@
 module Text.Parsing.CSV where
 
-import Prelude ((<$>), pure, ($), bind, (/=), (&&), map, id, (<*>), (<>))
+import Prelude
+import Data.Map as M
+import Control.Alt ((<|>))
+import Data.Array (some)
+import Data.Foldable (all)
+import Data.List (List(..), zip)
+import Data.String (fromCharArray, toCharArray, singleton)
 import Text.Parsing.Parser (Parser)
 import Text.Parsing.Parser.Combinators (sepEndBy, sepBy1, between)
-import Text.Parsing.Parser.String (eof, string, satisfy)
-
-import Control.Alt ((<|>))
-import Control.Apply ((<*))
-
-import Data.Functor (($>))
-import Data.Array (some)
-import Data.String (fromCharArray, toCharArray, singleton)
-import Data.List (List(..),zip)
-import Data.Foldable (all)
-import Data.Map as M
+import Text.Parsing.Parser.String (eof, satisfy, string)
 
 type P a = Parser String a
 
