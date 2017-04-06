@@ -1,6 +1,5 @@
 .psci
 .psci_modules
-.history
 .psc-ide-port
 bower_components
 output
