@@ -1,6 +1,6 @@
 module Text.Parsing.CSV where
 
-import Prelude
+import Prelude hiding (between)
 import Data.Map as M
 import Control.Alt ((<|>))
 import Data.Array (some)
@@ -32,8 +32,8 @@ makeChars xs = do
   fromCharArray <$> some char
   where
     char = satisfy $ excluded xs
-    excluded xs = \x -> all id $ terms xs <*> [x]
-    terms xs = map (/=) $ toCharArray xs
+    excluded ys = \x -> all id $ terms ys <*> [x]
+    terms ys = map (/=) $ toCharArray ys
 
 makeQchars :: Char -> P String
 makeQchars c = fromCharArray <$> some (qchar <|> escapedQuote)
@@ -79,4 +79,5 @@ makeParsers quote seperator eol = do
     fileHeaded: fileHeaded'
   }
 
+defaultParsers :: Parsers String
 defaultParsers = makeParsers '"' "," "\n"
