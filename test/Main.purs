@@ -12,9 +12,10 @@ import Test.Unit (test)
 import Test.Unit.Assert (assert)
 import Test.Unit.Console (TESTOUTPUT)
 import Test.Unit.Main (runTest)
-import Text.Parsing.CSV (P, defaultParsers, makeParsers)
+import Text.Parsing.CSV (P, Parsers, defaultParsers, makeParsers)
 import Text.Parsing.Parser (runParser)
 
+excelParsers :: Parsers String
 excelParsers = makeParsers '\'' ";" "\r\n"
 
 parseTrue :: forall a. P a -> (a -> Boolean) -> String -> Boolean
