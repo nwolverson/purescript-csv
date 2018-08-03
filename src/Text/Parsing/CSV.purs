@@ -6,7 +6,7 @@ import Control.Alt ((<|>))
 import Data.Array (some)
 import Data.Foldable (all)
 import Data.List (List(..), zip)
-import Data.String (fromCharArray, toCharArray, singleton)
+import Data.String.CodeUnits (fromCharArray, toCharArray, singleton)
 import Text.Parsing.Parser (Parser)
 import Text.Parsing.Parser.Combinators (sepEndBy, sepBy1, between)
 import Text.Parsing.Parser.String (eof, satisfy, string)
@@ -32,7 +32,7 @@ makeChars xs = do
   fromCharArray <$> some char
   where
     char = satisfy $ excluded xs
-    excluded ys = \x -> all id $ terms ys <*> [x]
+    excluded ys = \x -> all identity $ terms ys <*> [x]
     terms ys = map (/=) $ toCharArray ys
 
 makeQchars :: Char -> P String

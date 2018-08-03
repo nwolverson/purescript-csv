@@ -1,16 +1,14 @@
 module Test.Main where
 
 import Prelude
-import Data.Map as M
-import Control.Monad.Aff.AVar (AVAR)
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE)
+
 import Data.Either (Either(Left, Right))
 import Data.List (fromFoldable, List, head)
+import Data.Map as M
 import Data.Maybe (fromMaybe)
+import Effect (Effect)
 import Test.Unit (test)
 import Test.Unit.Assert (assert)
-import Test.Unit.Console (TESTOUTPUT)
 import Test.Unit.Main (runTest)
 import Text.Parsing.CSV (P, Parsers, defaultParsers, makeParsers)
 import Text.Parsing.Parser (runParser)
@@ -45,7 +43,7 @@ testFileResult = fromFoldable $ fromFoldable <$> testData
 testFileEmptyEndLineResult :: List (List String)
 testFileEmptyEndLineResult = fromFoldable $ fromFoldable <$> testData <> [[""]]
 
-main :: ∀ e. Eff (avar :: AVAR, testOutput :: TESTOUTPUT, console ∷ CONSOLE | e) Unit
+main :: Effect Unit
 main = runTest do
   test "chars" do
     assert "parses chars" $ parses defaultParsers.chars "abc" "abc"
