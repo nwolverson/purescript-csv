@@ -10,8 +10,8 @@ import Effect (Effect)
 import Test.Unit (test)
 import Test.Unit.Assert (assert)
 import Test.Unit.Main (runTest)
-import Text.Parsing.CSV (P, Parsers, defaultParsers, makeParsers)
-import Text.Parsing.Parser (runParser)
+import Parsing.CSV (P, Parsers, defaultParsers, makeParsers)
+import Parsing (runParser)
 
 excelParsers :: Parsers String
 excelParsers = makeParsers '\'' ";" "\r\n"
